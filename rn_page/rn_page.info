@@ -1,0 +1,9 @@
+name = rn_page
+description = "Test task module enables  /drupal-test-task and /drupal-test-task-views pathes"
+core = 7.x
+package = "Test task"
+
+
+
+dependencies[] = views
+features[views_view][] = drupal-test-task-views

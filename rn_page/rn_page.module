@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * Implements hook_menu
+ * 
+ */
+function rn_page_menu() {
+   return array(
+       'drupal-test-task' => [
+           'type' => MENU_CALLBACK,
+           'page callback' => 'rn_page_test_task',
+           'access callback' => true, // accessible for all
+       ],
+       'drupal-test-form' => [
+           'type' => MENU_CALLBACK,
+           'page callback' => 'rn_page_testform_page',
+           'access callback' => true, // accessible for all
+       ]
+   );
+}
+
+/**
+ * first test page shows user list using theme_table
+ */
+function rn_page_test_task() {
+    
+    drupal_set_title(t('Drupal test task'));
+    
+    //select users
+    $sql = db_select('users','u');
+    $sql->condition('uid', 0, '>');
+    $res = $sql->fields('u',['uid','name'])->execute();
+    
+    
+    //prepare table header
+    $header = array('id', 'username', '');
+    
+    //prepare rows
+    $rows = [];
+    while($row = $res->fetchAssoc()) {
+        $rows[] = [
+            $row['uid'],
+            $row['name'],
+            l(
+                t('Edit'), 
+                'user/'.$row['uid'].'/edit',
+                [
+                    'query' => [
+                        'destination' => 'drupal-test-task'
+                    ]
+                ]),
+        ];
+    }
+    
+    //theme to table
+    return theme('table', array('header' => $header, 'rows' => $rows));
+}
+
+/**
+ * Implements hook_views_api
+ */
+function rn_page_views_api() {
+    return array(
+        'api' => 3.0,
+        'path' => drupal_get_path('module', 'rn_page')
+    );
+}
+
+function rn_page_testform_page() {
+    drupal_add_js('misc/drupal.js');
+    drupal_add_js('misc/jquery.once.js');
+    drupal_add_library('system','ui.widget');
+    drupal_add_css(drupal_get_path('module','rn_page').'/js/jquery.ui.selectmenu.css');
+    drupal_add_js(drupal_get_path('module','rn_page').'/js/jquery.ui.selectmenu.js');
+    drupal_add_js(drupal_get_path('module','rn_page').'/js/selectmenu.js');
+    return drupal_get_form('rn_page_testform');
+}
+
+function rn_page_testform($form, &$form_state) {
+    return [
+        'select1' => [
+            '#type' => 'select',
+            '#options' => ['One', 'Two', 'Three'],
+        ],
+        'select2' => [
+            '#type' => 'select',
+            '#options' => ['Test1', 'Test2', 'Test3'],
+        ],
+        'submit' => [
+            '#type' => 'submit',
+            '#value' => 'Submit'
+        ],
+    ];
+}
