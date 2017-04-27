@@ -1,7 +1,9 @@
 (function ($) {
   Drupal.behaviors.selectmenu = {
     attach: function (context, settings) {
-      $('select').selectmenu({style:'dropdown'});
+      $('select').once(function(){
+          $(this).selectmenu();
+      });
     }
   };
 }(jQuery));
